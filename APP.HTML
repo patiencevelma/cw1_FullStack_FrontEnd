@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SCHOOL SUJECT APP</title>
+    <!-- Include Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+    <!-- Include Font Awesome for the cart icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+        }
+        header, main, section, footer {
+            padding: 20px;
+            margin: 20px;
+        }
+        header {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        header button {
+            background: #333;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button {
+            cursor: pointer;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #333;
+            color: #fff;
+        }
+        main {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        figure {
+            display: flex;
+            justify-content: center;
+        }
+        form {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        form input, form select, form button, form label {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+        form label {
+            font-weight: bold;
+        }
+        .summary {
+            border-top: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 20px;
+            background: #f9f9f9;
+        }
+        .summary h4 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header Section -->
+        <header>
+            <h1 v-text="sitename"></h1>
+            <!-- View Cart Button -->
+            <button v-on:click="toggleCheckoutForm">
+                <span class="fas fa-shopping-cart"></span> Checkout ({{ cart.length }} items)
+            </button>
+        </header>
+
+        <!-- Main Product Section -->
+        <main v-if="!showCheckoutForm">
+            <figure>
+                <img v-bind:src="product.image" alt="Product Image">
+            </figure>
+            <h2 v-text="product.title"></h2>
+            <p v-html="product.description"></p>
+            <p>Price: ${{ product.price }}</p>
+
+            <button v-on:click="addToCart(product)" :disabled="product.stock <= 0">
+                <span class="fas fa-cart-plus"></span> Add to Cart
+            </button>
+            <p v-if="product.stock <= 0" style="color: red;">Out of Stock</p>
+        </main>
+
+        <!-- Checkout Form Section -->
+        <section v-if="showCheckoutForm">
+            <h3>Pet Depot Checkout</h3>
+            <form @submit.prevent="placeOrder">
+                <h2>Enter Your Information</h2>
+                <label>First Name: <input type="text" v-model="checkoutDetails.firstName" required></label>
+                <label>Last Name: <input type="text" v-model="checkoutDetails.lastName" required></label>
+                <label>Address: <input type="text" v-model="checkoutDetails.address" required></label>
+                <label>City: <input type="text" v-model="checkoutDetails.city" required></label>
+                <label>State: 
+                    <select v-model="checkoutDetails.state" required>
+                        <option disabled value="">Select State</option>
+                        <option>CA</option>
+                        <option>NY</option>
+                        <option>TX</option>
+                    </select>
+                </label>
+                <label>Zip / Postal Code: <input type="text" v-model="checkoutDetails.zip" required></label>
+                <label><input type="checkbox" v-model="checkoutDetails.shipAsGift"> Ship As Gift?</label>
+
+                <label>Delivery Method:</label>
+                <label><input type="radio" value="Home" v-model="checkoutDetails.deliveryMethod"> Home</label>
+                <label><input type="radio" value="Business" v-model="checkoutDetails.deliveryMethod"> Business</label>
+
+                <button type="submit">Place Order</button>
+
+                <!-- Display the summary of the entered information -->
+                <div class="summary" v-if="checkoutDetails.firstName">
+                    <h4>Summary</h4>
+                    <p><strong>First Name:</strong> {{ checkoutDetails.firstName }}</p>
+                    <p><strong>Last Name:</strong> {{ checkoutDetails.lastName }}</p>
+                    <p><strong>Address:</strong> {{ checkoutDetails.address }}</p>
+                    <p><strong>City:</strong> {{ checkoutDetails.city }}</p>
+                    <p><strong>Zip:</strong> {{ checkoutDetails.zip }}</p>
+                    <p><strong>State:</strong> {{ checkoutDetails.state }}</p>
+                    <p><strong>Method:</strong> {{ checkoutDetails.deliveryMethod === 'Home' ? 'Home Address' : 'Business Address' }}</p>
+                    <p><strong>Gift:</strong> {{ checkoutDetails.shipAsGift ? 'Send As A Gift' : 'No' }}</p>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script type="text/javascript">
+        new Vue({
+            el: '#app',
+            data: {
+                sitename: 'Vue.js Pet Depot',
+                product: {
+                    id: 1001,
+                    title: "Cat Food, 25lb bag",
+                    description: "A 25 pound bag of <em>irresistible</em>, organic goodness for your cat.",
+                    price: 2000,
+                    image: "https://via.placeholder.com/150", // Use a placeholder image
+                    stock: 5 // Add stock level to the product
+                },
+                showCheckoutForm: false, // State to toggle checkout form visibility
+                cart: [], // Array to hold items added to the cart
+                checkoutDetails: { // Object to hold checkout form data
+                    firstName: '',
+                    lastName: '',
+                    address: '',
+                    city: '',
+                    state: '',
+                    zip: '',
+                    shipAsGift: false,
+                    deliveryMethod: 'Home'
+                }
+            },
+            methods: {
+                addToCart(product) {
+                    this.cart.push(product);
+                },
+                toggleCheckoutForm() {
+                    this.showCheckoutForm = !this.showCheckoutForm;
+                },
+                placeOrder() {
+                    if (this.cart.length === 0) {
+                        alert("Your cart is empty.");
+                        return;
+                    }
+                    if (!this.checkoutDetails.firstName || !this.checkoutDetails.lastName || !this.checkoutDetails.address || !this.checkoutDetails.city || !this.checkoutDetails.state || !this.checkoutDetails.zip) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    console.log("Order Details:", this.checkoutDetails);
+                    alert("Order placed successfully!");
+
+                    // Reset form and cart
+                    this.cart = [];
+                    this.showCheckoutForm = false;
+                    this.checkoutDetails = { 
+                        firstName: '',
+                        lastName: '',
+                        address: '',
+                        city: '',
+                        state: '',
+                        zip: '',
+                        shipAsGift: false,
+                        deliveryMethod: 'Home'
+                    };
+                }
+            },
+            computed: {
+                totalCartPrice() {
+                    return this.cart.reduce((total, item) => total + item.price, 0);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
