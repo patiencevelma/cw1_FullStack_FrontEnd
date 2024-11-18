@@ -1,119 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>SCHOOL SUJECT APP</title>
-    <!-- Include Vue.js -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
-    <!-- Include Font Awesome for the cart icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* Basic styling */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f4f4f4;
-        }
-        header, main, section, footer {
-            padding: 20px;
-            margin: 20px;
-        }
-        header {
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h1 {
-            margin: 0;
-        }
-        header button {
-            background: #333;
-            color: #fff;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button {
-            cursor: pointer;
-            padding: 10px 20px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #333;
-            color: #fff;
-        }
-        main {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        figure {
-            display: flex;
-            justify-content: center;
-        }
-        form {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: 20px auto;
-        }
-        form input, form select, form button, form label {
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-        }
-        form label {
-            font-weight: bold;
-        }
-        .summary {
-            border-top: 1px solid #ddd;
-            padding: 20px;
-            margin-top: 20px;
-            background: #f9f9f9;
-        }
-        .summary h4 {
-            margin-bottom: 10px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Listing App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <link rel="stylesheet" href="APP.CSS">
 </head>
 <body>
-    <div id="app">
-        <!-- Header Section -->
-        <header>
-            <h1 v-text="sitename"></h1>
-            <!-- View Cart Button -->
-            <button v-on:click="toggleCheckoutForm">
-                <span class="fas fa-shopping-cart"></span> Checkout ({{ cart.length }} items)
-            </button>
-        </header>
 
+
+<div id="app">
+    <!-- Header Section -->
+    <header>
+        <h1>{{ sitename }}</h1>
+        <button @click="viewCart" :disabled="cart.length === 0">
+            <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
+        </button>
+    </header>
+    
+
+    <div class="container">
         <!-- Main Product Section -->
-        <main v-if="!showCheckoutForm">
-            <figure>
-                <img v-bind:src="product.image" alt="Product Image">
-            </figure>
-            <h2 v-text="product.title"></h2>
-            <p v-html="product.description"></p>
-            <p>Price: ${{ product.price }}</p>
+        <div class="product-area-wrapper" v-if="!showCartPage && !showCheckoutForm && !showSummary">
+            <!-- Main Product Area -->
+            <main class="product-area">
+                <div v-for="subject in filteredSubjects" :key="subject._id" class="card">
+                    <img :src="subject.image" :alt="subject.title">
+                    <h3>{{ subject.title }}</h3>
+                    <p>Location: {{ subject.location }}</p>
+                    <p>Price: £{{ subject.price }}</p>
+                    <p>Spaces: {{ subject.spaces }}</p>
+                    <button @click="addToCart(subject)" :disabled="subject.spaces <= 0" class="add-to-cart-btn">
+                        <span class="fas fa-cart-plus"></span> Add to Cart
+                    </button>
+                    <p v-if="subject.spaces <= 0" style="color: red;">Out of Stock</p>
+                </div>
+            </main>
 
-            <button v-on:click="addToCart(product)" :disabled="product.stock <= 0">
-                <span class="fas fa-cart-plus"></span> Add to Cart
-            </button>
-            <p v-if="product.stock <= 0" style="color: red;">Out of Stock</p>
-        </main>
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <h3>Sort Lessons</h3>
+                <label for="sortBy">Sort By:</label>
+                <select v-model="sortBy" id="sortBy">
+                    <option value="title">Subject</option>
+                    <option value="location">Location</option>
+                    <option value="price">Price</option>
+                    <option value="spaces">Spaces</option>
+                </select>
 
-        <!-- Checkout Form Section -->
-        <section v-if="showCheckoutForm">
-            <h3>Pet Depot Checkout</h3>
-            <form @submit.prevent="placeOrder">
-                <h2>Enter Your Information</h2>
+                <label for="sortOrder">Order:</label>
+                <select v-model="sortOrder" id="sortOrder">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+
+                <h3>Search</h3>
+                <input type="text" v-model="searchTerm" placeholder="Search for subjects...">
+            </aside>
+        </div>
+
+        <!-- Cart Page -->
+        <div v-if="showCartPage" class="cart-area">
+            <h2>Your Cart</h2>
+            <div v-for="(item, index) in cart" :key="index" class="cart-item">
+                <span>{{ item.title }} - £{{ item.price }}</span>
+                <button @click="removeFromCart(item, index)" class="remove-btn">Remove</button>
+            </div>
+            <button @click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
+            <button @click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
+        </div>
+
+        <!-- Checkout Form -->
+        <div v-if="showCheckoutForm && !showSummary" class="checkout-container">
+            <h3>Checkout</h3>
+            <form @submit.prevent="submitCheckoutForm">
                 <label>First Name: <input type="text" v-model="checkoutDetails.firstName" required></label>
                 <label>Last Name: <input type="text" v-model="checkoutDetails.lastName" required></label>
                 <label>Address: <input type="text" v-model="checkoutDetails.address" required></label>
@@ -126,98 +88,207 @@
                         <option>TX</option>
                     </select>
                 </label>
-                <label>Zip / Postal Code: <input type="text" v-model="checkoutDetails.zip" required></label>
+                <label>Zip: <input type="text" v-model="checkoutDetails.zip" required></label>
                 <label><input type="checkbox" v-model="checkoutDetails.shipAsGift"> Ship As Gift?</label>
 
                 <label>Delivery Method:</label>
                 <label><input type="radio" value="Home" v-model="checkoutDetails.deliveryMethod"> Home</label>
                 <label><input type="radio" value="Business" v-model="checkoutDetails.deliveryMethod"> Business</label>
 
-                <button type="submit">Place Order</button>
-
-                <!-- Display the summary of the entered information -->
-                <div class="summary" v-if="checkoutDetails.firstName">
-                    <h4>Summary</h4>
-                    <p><strong>First Name:</strong> {{ checkoutDetails.firstName }}</p>
-                    <p><strong>Last Name:</strong> {{ checkoutDetails.lastName }}</p>
-                    <p><strong>Address:</strong> {{ checkoutDetails.address }}</p>
-                    <p><strong>City:</strong> {{ checkoutDetails.city }}</p>
-                    <p><strong>Zip:</strong> {{ checkoutDetails.zip }}</p>
-                    <p><strong>State:</strong> {{ checkoutDetails.state }}</p>
-                    <p><strong>Method:</strong> {{ checkoutDetails.deliveryMethod === 'Home' ? 'Home Address' : 'Business Address' }}</p>
-                    <p><strong>Gift:</strong> {{ checkoutDetails.shipAsGift ? 'Send As A Gift' : 'No' }}</p>
-                </div>
+                <button type="submit">Review Order</button>
             </form>
-        </section>
+            <button @click="goBackToCart" class="add-to-cart-btn">Back to Cart</button>
+        </div>
+
+        <!-- Order Summary -->
+        <div v-if="showSummary" class="checkout-container">
+            <h3>Order Summary</h3>
+            <p><strong>First Name:</strong> {{ checkoutDetails.firstName }}</p>
+            <p><strong>Last Name:</strong> {{ checkoutDetails.lastName }}</p>
+            <p><strong>Address:</strong> {{ checkoutDetails.address }}</p>
+            <p><strong>City:</strong> {{ checkoutDetails.city }}</p>
+            <p><strong>State:</strong> {{ checkoutDetails.state }}</p>
+            <p><strong>Zip:</strong> {{ checkoutDetails.zip }}</p>
+            <p><strong>Gift Wrap:</strong> {{ checkoutDetails.shipAsGift ? "Yes" : "No" }}</p>
+            <p><strong>Delivery Method:</strong> {{ checkoutDetails.deliveryMethod }}</p>
+            <p><strong>Items:</strong></p>
+            <ul>
+                <li v-for="item in cart" :key="item._id">
+                    {{ item.title }} - £{{ item.price }}
+                </li>
+            </ul>
+            <button @click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
+            <button @click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
+        </div>
     </div>
+</div>
 
-    <script type="text/javascript">
-        new Vue({
-            el: '#app',
-            data: {
-                sitename: 'Vue.js Pet Depot',
-                product: {
-                    id: 1001,
-                    title: "Cat Food, 25lb bag",
-                    description: "A 25 pound bag of <em>irresistible</em>, organic goodness for your cat.",
-                    price: 2000,
-                    image: "https://via.placeholder.com/150", // Use a placeholder image
-                    stock: 5 // Add stock level to the product
-                },
-                showCheckoutForm: false, // State to toggle checkout form visibility
-                cart: [], // Array to hold items added to the cart
-                checkoutDetails: { // Object to hold checkout form data
-                    firstName: '',
-                    lastName: '',
-                    address: '',
-                    city: '',
-                    state: '',
-                    zip: '',
-                    shipAsGift: false,
-                    deliveryMethod: 'Home'
-                }
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            sitename: 'Online Learning Hub',
+            searchTerm: '',
+            sortBy: 'title',
+            sortOrder: 'asc',
+            subjects: [],
+            cart: [],
+            checkoutDetails: {
+                firstName: '',
+                lastName: '',
+                address: '',
+                city: '',
+                state: '',
+                zip: '',
+                shipAsGift: false,
+                deliveryMethod: ''
             },
-            methods: {
-                addToCart(product) {
-                    this.cart.push(product);
-                },
-                toggleCheckoutForm() {
-                    this.showCheckoutForm = !this.showCheckoutForm;
-                },
-                placeOrder() {
-                    if (this.cart.length === 0) {
-                        alert("Your cart is empty.");
-                        return;
-                    }
-                    if (!this.checkoutDetails.firstName || !this.checkoutDetails.lastName || !this.checkoutDetails.address || !this.checkoutDetails.city || !this.checkoutDetails.state || !this.checkoutDetails.zip) {
-                        alert("Please fill in all required fields.");
-                        return;
-                    }
+            showCartPage: false,
+            showCheckoutForm: false,
+            showSummary: false
+        },
+        computed: {
+            filteredSubjects() {
+                let filtered = this.subjects.filter(subject => {
+                    return (
+                        subject.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                        subject.location.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                        subject.price.toString().includes(this.searchTerm) ||
+                        subject.spaces.toString().includes(this.searchTerm)
+                    );
+                });
 
-                    console.log("Order Details:", this.checkoutDetails);
-                    alert("Order placed successfully!");
+                filtered.sort((a, b) => {
+                    const key = this.sortBy;
+                    if (this.sortOrder === 'asc') return a[key] > b[key] ? 1 : -1;
+                    return a[key] < b[key] ? 1 : -1;
+                });
 
-                    // Reset form and cart
-                    this.cart = [];
-                    this.showCheckoutForm = false;
-                    this.checkoutDetails = { 
-                        firstName: '',
-                        lastName: '',
-                        address: '',
-                        city: '',
-                        state: '',
-                        zip: '',
-                        shipAsGift: false,
-                        deliveryMethod: 'Home'
-                    };
-                }
-            },
-            computed: {
-                totalCartPrice() {
-                    return this.cart.reduce((total, item) => total + item.price, 0);
-                }
+                return filtered;
             }
-        });
-    </script>
+        },
+        methods: {
+      
+
+         // Add a lesson to the cart
+         addToCart(subject) {
+            if (subject.spaces > 0) {
+                this.cart.push(subject); // Add to cart
+                subject.spaces--; // Decrease availability
+            }
+        },
+
+        // Remove a lesson from the cart
+        removeFromCart(subject, index) {
+            this.cart.splice(index, 1); // Remove from cart
+            subject.spaces++; // Restore availability
+        },
+
+        // Check if a subject is out of stock
+        isOutOfStock(subject) {
+            return subject.spaces === 0;
+        },
+
+        // Toggle between lesson page and cart page
+        toggleCartView() {
+            if (this.cart.length === 0 && this.showCart) {
+                alert('Your cart is empty!');
+            } else {
+                this.showCart = !this.showCart;
+            }
+        },
+            goBackToProducts() {
+                this.showCartPage = false;
+            },
+            goToCheckout() {
+                this.showCheckoutForm = true;
+            },
+            goBackToCart() {
+                this.showCheckoutForm = false;
+            },
+            submitCheckoutForm() {
+                this.showSummary = true;
+                this.showCheckoutForm = false;
+            },
+            goBackToCheckout() {
+                this.showSummary = false;
+                this.showCheckoutForm = true;
+            },
+            completeCheckout() {
+                alert('Thank you for your order!');
+                this.cart = [];
+                this.showSummary = false;
+            },
+            fetchProducts() {
+                // Fetch products from the backend API
+                fetch('http://localhost:3000/collections/subjects')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.subjects = data;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching products:', error);
+                    });
+                
+        },
+        addToCart(subject) {
+            if (subject.spaces > 0) {
+                fetch(`http://localhost:3000/collections/subjects/${subject._id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ spaces: subject.spaces - 1 })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to update spaces');
+                    this.cart.push(subject);
+                    subject.spaces--;
+                })
+                .catch(error => {
+                    console.error('Error updating lesson spaces:', error);
+                    alert('Failed to add to cart.');
+                });
+            }
+        },
+        completeCheckout() {
+            const orderDetails = {
+                ...this.checkoutDetails,
+                items: this.cart,
+                total: this.cart.reduce((total, item) => total + item.price, 0)
+            };
+
+            fetch('http://localhost:3000/collections/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderDetails)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to save order');
+                return response.json();
+            })
+            .then(() => {
+                alert('Thank you for your order!');
+                this.cart = [];
+                this.showSummary = false;
+                this.fetchProducts();
+            })
+            .catch(error => {
+                console.error('Error completing order:', error);
+                alert('Failed to complete order.');
+            });
+        },
+        viewCart() { this.showCartPage = true; },
+        goBackToProducts() { this.showCartPage = false; },
+        goToCheckout() { this.showCheckoutForm = true; },
+        goBackToCart() { this.showCheckoutForm = false; },
+        goBackToCheckout() { this.showSummary = false; this.showCheckoutForm = true; }
+    },
+    mounted() {
+        this.fetchProducts();
+    }
+});
+</script>
+        
+        
+
 </body>
 </html>
