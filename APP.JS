@@ -42,36 +42,48 @@ new Vue({
             return filtered;
         }
     },
+
+    
     methods: {
-  
+        // Add a subject to the cart
+        addToCart(subject) {
+            if (this.canAddToCart(subject)) {
+                this.cart.push(subject); // Add to cart
+                subject.spaces--; // Decrease available spaces
+            }
+        },
+        //Remove subject from cart
+        removeItemFromCart: function (subjectTitle) {
+        const productIndex = this.cart.findIndex(subject => subject.title === subjectTitle);
+            if (productIndex !== -1) {
+            const subject = this.cart[subjectIndex];
+            this.subject.splice(subjectIndex, 1);
+            subject.spaces++;
+             }
+            
+            },
+        // Check if a subject is out of stock
+        isOutOfStock(subject) {
+            return subject.spaces === 0;
+        },
 
-     // Add a lesson to the cart
-     addToCart(subject) {
-        if (subject.spaces > 0) {
-            this.cart.push(subject); // Add to cart
-            subject.spaces--; // Decrease availability
-        }
-    },
 
-    // Remove a lesson from the cart
-    removeFromCart(subject, index) {
-        this.cart.splice(index, 1); // Remove from cart
-        subject.spaces++; // Restore availability
-    },
 
-    // Check if a subject is out of stock
-    isOutOfStock(subject) {
-        return subject.spaces === 0;
-    },
+        // Toggle between lesson page and cart page
+        viewCart() {
+            this.showCartPage = true;
+            this.showCheckoutForm = false;
+            this.showSummary = false;
+        },
+        // Check if a product can be added to the cart
+        canAddToCart(subject) {
+            return subject.spaces > this.cartCount(subject._id);
+        },
 
-    // Toggle between lesson page and cart page
-    toggleCartView() {
-        if (this.cart.length === 0 && this.showCart) {
-            alert('Your cart is empty!');
-        } else {
-            this.showCart = !this.showCart;
-        }
-    },
+        // Count the number of a specific product in the cart
+        cartCount(id) {
+            return this.cart.filter(item => item._id === id).length;
+        }, 
         goBackToProducts() {
             this.showCartPage = false;
         },
