@@ -96,7 +96,7 @@
                 <p>Location: {{ subject.location }}</p>
                 <p>Price: £{{ subject.price }}</p>
             </div>
-            <button v-on:click="updateCartInBackend" class="add-to-cart-btn">Complete Order</button>
+            <button v-on:click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
             <button v-on:click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
         </div>
     </div>
