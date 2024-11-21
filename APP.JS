@@ -55,7 +55,7 @@ new Vue({
             subject.spaces++;
             this.cart.splice(index, 1);
         },
-        toggleCartView() {
+        toggleviewCart() {
             this.showCartPage = !this.showCartPage;
         },
         goToCheckout() {
