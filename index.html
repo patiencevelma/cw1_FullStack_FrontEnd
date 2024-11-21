@@ -15,10 +15,11 @@
     <!-- Header Section -->
     <header>
         <h1>{{ sitename }}</h1>
-        <button @click="viewCart" :disabled="cart.length === 0">
-            <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
+        <button v-on:click="viewCart" :disabled="cart.length === 0">
+          <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
         </button>
-    </header>
+      </header>
+    </div>
     
 
     <div class="container">
@@ -32,9 +33,10 @@
                     <p>Location: {{ subject.location }}</p>
                     <p>Price: £{{ subject.price }}</p>
                     <p>Spaces: {{ subject.spaces }}</p>
-                    <button @click="addToCart(subject)" :disabled="subject.spaces <= 0" class="add-to-cart-btn">
+                    <button v-on:click="addToCart(subject)" :disabled="subject.spaces <= 0" class="add-to-cart-btn">
                         <span class="fas fa-cart-plus"></span> Add to Cart
-                    </button>
+                      </button>
+                      
                     <p v-if="subject.spaces <= 0" style="color: red;">Out of Stock</p>
                 </div>
             </main>
@@ -68,8 +70,9 @@
                 <span>{{ item.title }} - £{{ item.price }}</span>
                 <button @click="removeFromCart(item, index)" class="remove-btn">Remove</button>
             </div>
-            <button @click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
-            <button @click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
+            <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
+            <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
+
         </div>
 
         <!-- Checkout Form -->
@@ -97,7 +100,8 @@
 
                 <button type="submit">Review Order</button>
             </form>
-            <button @click="goBackToCart" class="add-to-cart-btn">Back to Cart</button>
+            <button v-on:click="goBackToCart" class="add-to-cart-btn">Back to Cart</button>
+
         </div>
 
         <!-- Order Summary -->
@@ -117,8 +121,9 @@
                     {{ item.title }} - £{{ item.price }}
                 </li>
             </ul>
-            <button @click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
-            <button @click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
+            <button v-on:click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
+            <button v-on:click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
+            
         </div>
     </div>
 </div>
