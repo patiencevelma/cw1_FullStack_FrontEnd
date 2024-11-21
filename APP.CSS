@@ -95,6 +95,12 @@ body {
     padding: 10px;
     border-bottom: 1px solid #ddd;
 }
+.cart-item-image {
+    width: 50px;  /* Adjust as needed */
+    height: 50px;
+    object-fit: cover; /* Makes sure the image doesn't get distorted */
+    margin-right: 10px; /* Adds space between the image and the text */
+}
 
 .remove-btn {
     padding: 5px 10px;

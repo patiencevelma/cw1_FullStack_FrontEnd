@@ -39,10 +39,7 @@
 
                     <!-- Dynamic Inventory Messages -->
                     <p v-if="isOutOfStock(subject)" style="color: red;">Out of Stock</p>
-                    <p v-else-if="subject.spaces - cartCount(subject._id) < 5">
-                        Only {{ subject.spaces - cartCount(subject._id) }} left!
-                    </p>
-                    <p v-else>Buy now!</p>
+                    
                 </div>
             </main>
 
@@ -68,12 +65,20 @@
             </aside>
         </div>
 
-        <!-- Cart Page -->
-        <div v-if="showCartPage" class="cart-area">
-            <h2>Your Cart</h2>
-            <div v-for="(subject, index) in cart" :key="index" class="cart-item">
-                <span>{{ subject.title }} - £{{ subject.price }}</span>
-                <button v-on:click="removeFromCart(subject, index)" class="remove-btn">Remove</button>
+      <!-- Cart Page -->
+      <div v-if="showCartPage" class="cart-area">
+        <h2>Your Cart</h2>
+        <div v-for="(subject, index) in cart" :key="index" class="cart-item">
+            <span>{{ subject.title }} - £{{ subject.price }}</span>
+            <button v-on:click="removeFromCart(subject, index)" class="remove-btn">
+                <span class="fas fa-trash"></span> Remove
+            </button>
+        </div>
+        <button v-on:click="toggleCartView" class="add-to-cart-btn">Back to Lessons</button>
+        <button v-on:click="goToCheckout" class="add-to-cart-btn" :disabled="cart.length === 0">Proceed to Checkout</button>
+    </div>
+
+                
             </div>
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
             <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
