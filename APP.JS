@@ -45,46 +45,26 @@ new Vue({
 
     
     methods: {
-        canAddToCart(subject) {
-            return subject.spaces > 0;
-        },
-        isOutOfStock(subject) {
-            return subject.spaces === 0;
-        },
         addToCart(subject) {
-            if (this.canAddToCart(subject)) {
-                this.cart.push({ ...subject });
-                subject.spaces--; // Reduce available spaces.
+            if (subject.spaces > 0) {
+                subject.spaces--;
+                this.cart.push(subject);
             }
         },
         removeFromCart(subject, index) {
-            this.cart.splice(index, 1); // Remove from cart.
-            // Add space back to the original subject in the list.
-            const originalSubject = this.subjects.find(s => s._id === subject._id);
-            if (originalSubject) {
-                originalSubject.spaces++;
-            }
+            subject.spaces++;
+            this.cart.splice(index, 1);
         },
-        viewCart() {
-            this.showCartPage = !this.showCartPage; // Toggle cart view.
-        },
-        // Check if a product can be added to the cart
-        canAddToCart(subject) {
-            return subject.spaces > this.cartCount(subject._id);
-        },
-
-        // Count the number of a specific product in the cart
-        cartCount(id) {
-            return this.cart.filter(item => item._id === id).length;
-        }, 
-        goBackToProducts() {
-            this.showCartPage = false;
+        toggleCartView() {
+            this.showCartPage = !this.showCartPage;
         },
         goToCheckout() {
             this.showCheckoutForm = true;
+            this.showCartPage = false;
         },
         goBackToCart() {
             this.showCheckoutForm = false;
+            this.showCartPage = true;
         },
         submitCheckoutForm() {
             this.showSummary = true;
