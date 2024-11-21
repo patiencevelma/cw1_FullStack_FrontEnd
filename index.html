@@ -66,10 +66,18 @@
         <!-- Cart Page -->
         <div v-if="showCartPage" class="cart-area">
             <h2>Your Cart</h2>
-            <div v-for="(item, index) in cart" :key="index" class="cart-item">
-                <span>{{ item.title }} - £{{ item.price }}</span>
+            <div v-for="subject in filteredSubjects" :key="subject._id" class="card">
+                <img :src="subject.image" :alt="subject.title">
+                <h3>{{ subject.title }}</h3>
+                <p>Location: {{ subject.location }}</p>
+                <p>Price: £{{ subject.price }}</p>
+                <p>Spaces: {{ subject.spaces }}</p>
+                <button v-on:click="addToCart(subject)" :disabled="subject.spaces <= 0" class="add-to-cart-btn">
+                    <span class="fas fa-cart-plus"></span> Add to Cart
+                  </button>
+                  
+                <p v-if="subject.spaces <= 0" style="color: red;">Out of Stock</p>
                 <button v-on:click="removeFromCart(item, index)" class="remove-btn">Remove</button>
-
             </div>
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
             <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
