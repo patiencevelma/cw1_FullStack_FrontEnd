@@ -15,11 +15,10 @@
     <!-- Header Section -->
     <header>
         <h1>{{ sitename }}</h1>
-        <button v-on:click="viewCart" :disabled="cart.length === 0">
-          <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
+        <button @click="viewCart" :disabled="cart.length === 0">
+            <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
         </button>
-      </header>
-    </div>
+    </header>
     
 
     <div class="container">
