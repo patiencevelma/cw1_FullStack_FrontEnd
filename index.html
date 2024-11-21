@@ -49,7 +49,27 @@
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
             <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
         </div>
+   <!-- Sidebar -->
+    <aside class="sidebar">
+    <h3>Sort Lessons</h3>
+    <label for="sortBy">Sort By:</label>
+    <select v-model="sortBy" id="sortBy">
+        <option value="title">Subject</option>
+        <option value="location">Location</option>
+        <option value="price">Price</option>
+        <option value="spaces">Spaces</option>
+    </select>
 
+    <label for="sortOrder">Order:</label>
+    <select v-model="sortOrder" id="sortOrder">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+    </select>
+
+    <h3>Search</h3>
+    <input type="text" v-model="searchTerm" placeholder="Search for subjects...">
+    </aside>
+  </div>
         <!-- Checkout Form -->
         <div v-if="showCheckoutForm && !showSummary" class="checkout-container">
             <h3>Checkout</h3>
