@@ -68,7 +68,8 @@
             <h2>Your Cart</h2>
             <div v-for="(item, index) in cart" :key="index" class="cart-item">
                 <span>{{ item.title }} - £{{ item.price }}</span>
-                <button v-on:click="removeFromCart(item, index)" class="remove-btn">Remove</button>
+                <button @click="removeFromCart(item, index)" class="remove-btn">Remove</button>
+            </div>
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
             <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
 
@@ -99,8 +100,7 @@
 
                 <button type="submit">Review Order</button>
             </form>
-            <button v-on:click="goBackToCart" class="add-to-cart-btn">Back to Cart</button>
-
+            <button @click="goBackToCart" class="add-to-cart-btn">Back to Cart</button>
         </div>
 
         <!-- Order Summary -->
@@ -120,9 +120,8 @@
                     {{ item.title }} - £{{ item.price }}
                 </li>
             </ul>
-            <button v-on:click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
-            <button v-on:click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
-            
+           <button v-on:click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
+<button v-on:click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
         </div>
     </div>
 </div>
