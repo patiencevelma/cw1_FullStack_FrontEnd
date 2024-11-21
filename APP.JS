@@ -101,7 +101,7 @@ new Vue({
         },
         fetchProducts() {
             // Fetch products from the backend API
-            fetch('http://localhost:3000/collections/subjects')
+            fetch('https://cw1-fullstack-backend.onrender.com/collections/subjects')
                 .then(response => response.json())
                 .then(data => {
                     this.subjects = data;
@@ -113,7 +113,7 @@ new Vue({
     },
     addToCart(subject) {
         if (subject.spaces > 0) {
-            fetch(`http://localhost:3000/collections/subjects/${subject._id}`, {
+            fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ spaces: subject.spaces - 1 })
@@ -136,7 +136,7 @@ new Vue({
             total: this.cart.reduce((total, item) => total + item.price, 0)
         };
 
-        fetch('http://localhost:3000/collections/orders', {
+        fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderDetails)
