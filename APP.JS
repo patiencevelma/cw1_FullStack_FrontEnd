@@ -1,5 +1,4 @@
-
-new Vue({
+Vue({
     el: '#app',
     data: {
         sitename: 'Online Learning Hub',
@@ -43,9 +42,9 @@ new Vue({
         }
     },
 
-    
     methods: {
         addToCart(subject) {
+            // First addToCart method (local update)
             if (subject.spaces > 0) {
                 subject.spaces--;
                 this.cart.push(subject);
@@ -89,58 +88,55 @@ new Vue({
                 .catch(error => {
                     console.error('Error fetching products:', error);
                 });
-            
-    },
-    addToCart(subject) {
-        if (subject.spaces > 0) {
-            fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
-                method: 'PUT',
+        },
+        // Second addToCart method (API call to update spaces)
+        updateCartInBackend(subject) {
+            if (subject.spaces > 0) {
+                fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ spaces: subject.spaces - 1 })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to update spaces');
+                    this.cart.push(subject);
+                    subject.spaces--;
+                })
+                .catch(error => {
+                    console.error('Error updating lesson spaces:', error);
+                    alert('Failed to add to cart.');
+                });
+            }
+        },
+        completeCheckout() {
+            const orderDetails = {
+                ...this.checkoutDetails,
+                items: this.cart,
+                total: this.cart.reduce((total, item) => total + item.price, 0)
+            };
+
+            fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ spaces: subject.spaces - 1 })
+                body: JSON.stringify(orderDetails)
             })
             .then(response => {
-                if (!response.ok) throw new Error('Failed to update spaces');
-                this.cart.push(subject);
-                subject.spaces--;
+                if (!response.ok) throw new Error('Failed to save order');
+                return response.json();
+            })
+            .then(() => {
+                alert('Thank you for your order!');
+                this.cart = [];
+                this.showSummary = false;
+                this.fetchProducts();
             })
             .catch(error => {
-                console.error('Error updating lesson spaces:', error);
-                alert('Failed to add to cart.');
+                console.error('Error completing order:', error);
+                alert('Failed to complete order.');
             });
-        }
-    },
-    completeCheckout() {
-        const orderDetails = {
-            ...this.checkoutDetails,
-            items: this.cart,
-            total: this.cart.reduce((total, item) => total + item.price, 0)
-        };
-
-        fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderDetails)
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Failed to save order');
-            return response.json();
-        })
-        .then(() => {
-            alert('Thank you for your order!');
-            this.cart = [];
-            this.showSummary = false;
-            this.fetchProducts();
-        })
-        .catch(error => {
-            console.error('Error completing order:', error);
-            alert('Failed to complete order.');
-        });
-    },
-    viewCart() { this.showCartPage = true; },
-    goBackToProducts() { this.showCartPage = false; },
-    goToCheckout() { this.showCheckoutForm = true; },
-    goBackToCart() { this.showCheckoutForm = false; },
-    goBackToCheckout() { this.showSummary = false; this.showCheckoutForm = true; }
+        },
+        viewCart() { this.showCartPage = true; },
+        goBackToProducts() { this.showCartPage = false; }
     },
     mounted() {
         this.fetchProducts();
