@@ -64,12 +64,19 @@
             </aside>
         </div>
 
-        <!-- Cart Page -->
-        <div v-if="showCartPage" class="cart-area">
-            <h2>Your Cart</h2>
-            <div v-for="(item, index) in cart" :key="index" class="cart-item">
-                <span>{{ item.title }} - £{{ item.price }}</span>
+        <main class="cart-area">
+            <div v-for="(item, index) in cart" :key="index" class="card">
+                <!-- Display item details -->
+                <img :src="item.image" :alt="item.title" class="cart-item-image" />
+                <h3>{{ item.title }}</h3>
+                <p>Location: {{ item.location }}</p>
+                <p>Price: £{{ item.price }}</p>
+                <p>Spaces: {{ item.spaces }}</p>
+
+                <!-- Remove item from cart -->
                 <button v-on:click="removeFromCart(item, index)" class="remove-btn">Remove</button>
+            </div>
+        </main>
 
             </div>
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
@@ -120,7 +127,12 @@
             <p><strong>Items:</strong></p>
             <ul>
                 <li v-for="item in cart" :key="item._id">
-                    {{ item.title }} - £{{ item.price }}
+                    <img :src="item.image" :alt="item.title" class="cart-item-image" />
+                    <h3>{{ item.title }}</h3>
+                    <p>Location: {{ item.location }}</p>
+                    <p>Price: £{{ item.price }}</p>
+                    <p>Spaces: {{ item.spaces }}</p>
+    
                 </li>
             </ul>
             <button v-on:click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
