@@ -49,8 +49,9 @@
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
             <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
         </div>
-   <!-- Sidebar -->
-    <aside class="sidebar">
+     <!-- Sidebar -->
+
+   <aside class="sidebar" v-if="!showCartPage && !showCheckoutForm && !showSummary"></aside>
     <h3>Sort Lessons</h3>
     <label for="sortBy">Sort By:</label>
     <select v-model="sortBy" id="sortBy">
