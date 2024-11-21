@@ -123,9 +123,8 @@
                     {{ item.title }} - £{{ item.price }}
                 </li>
             </ul>
-            <button v-on:click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
-           <button v-on:click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
-
+            <button @click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
+            <button @click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
         </div>
     </div>
 </div>
