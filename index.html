@@ -9,18 +9,22 @@
     <link rel="stylesheet" href="APP.CSS">
 </head>
 <body>
+
+
 <div id="app">
     <!-- Header Section -->
     <header>
-        <h1>ONLINE LEARNING HUB</h1>
-        <button v-on:click="viewCart" :disabled="cart.length === 0">
+        <h1>{{ sitename }}</h1>
+        <button @click="viewCart" :disabled="cart.length === 0">
             <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
         </button>
     </header>
+    
 
     <div class="container">
         <!-- Main Product Section -->
         <div class="product-area-wrapper" v-if="!showCartPage && !showCheckoutForm && !showSummary">
+            <!-- Main Product Area -->
             <main class="product-area">
                 <div v-for="subject in filteredSubjects" :key="subject._id" class="card">
                     <img :src="subject.image" :alt="subject.title">
@@ -28,16 +32,14 @@
                     <p>Location: {{ subject.location }}</p>
                     <p>Price: £{{ subject.price }}</p>
                     <p>Spaces: {{ subject.spaces }}</p>
-                    <button 
-                        v-on:click="addToCart(subject)" 
-                        :disabled="!canAddToCart(subject)" 
-                        class="add-to-cart-btn">
+                    <button @click="addToCart(subject)" :disabled="subject.spaces <= 0" class="add-to-cart-btn">
                         <span class="fas fa-cart-plus"></span> Add to Cart
                     </button>
-                    <p v-if="subject.spaces === 0" style="color: red;">Out of Stock</p>
+                    <p v-if="subject.spaces <= 0" style="color: red;">Out of Stock</p>
                 </div>
             </main>
 
+            <!-- Sidebar -->
             <aside class="sidebar">
                 <h3>Sort Lessons</h3>
                 <label for="sortBy">Sort By:</label>
@@ -62,20 +64,18 @@
         <!-- Cart Page -->
         <div v-if="showCartPage" class="cart-area">
             <h2>Your Cart</h2>
-            <div v-for="(subject, index) in cart" :key="index" class="cart-item">
-                <span>{{ subject.title }} - £{{ subject.price }}</span>
-                <button v-on:click="removeFromCart(subject, index)" class="remove-btn">
-                    <span class="fas fa-trash"></span> Remove
-                </button>
+            <div v-for="(item, index) in cart" :key="index" class="cart-item">
+                <span>{{ item.title }} - £{{ item.price }}</span>
+                <button @click="removeFromCart(item, index)" class="remove-btn">Remove</button>
             </div>
-            <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Lessons</button>
-            <button v-on:click="goToCheckout" class="add-to-cart-btn" :disabled="cart.length === 0">Proceed to Checkout</button>
+            <button @click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
+            <button @click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
         </div>
 
         <!-- Checkout Form -->
         <div v-if="showCheckoutForm && !showSummary" class="checkout-container">
             <h3>Checkout</h3>
-            <form v-on:submit.prevent="submitCheckoutForm">
+            <form @submit.prevent="submitCheckoutForm">
                 <label>First Name: <input type="text" v-model="checkoutDetails.firstName" required></label>
                 <label>Last Name: <input type="text" v-model="checkoutDetails.lastName" required></label>
                 <label>Address: <input type="text" v-model="checkoutDetails.address" required></label>
@@ -97,7 +97,7 @@
 
                 <button type="submit">Review Order</button>
             </form>
-            <button v-on:click="goBackToCart" class="add-to-cart-btn">Back to Cart</button>
+            <button @click="goBackToCart" class="add-to-cart-btn">Back to Cart</button>
         </div>
 
         <!-- Order Summary -->
@@ -117,11 +117,9 @@
                     {{ item.title }} - £{{ item.price }}
                 </li>
             </ul>
-            <button v-on:click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
-            <button v-on:click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
+            <button @click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
+            <button @click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
         </div>
     </div>
 </div>
-<script src="/APP.JS"></script>
-</body>
-</html>
+
