@@ -22,9 +22,8 @@
     <div class="container">
         <!-- Main Product Section -->
         <div class="product-area-wrapper" v-if="!showCartPage && !showCheckoutForm && !showSummary">
-            <!-- Main Product Area -->
             <main class="product-area">
-                <div v-for="subject in sortedAndFilteredSubjects" :key="subject._id" class="card">
+                <div v-for="subject in filteredSubjects" :key="subject._id" class="card">
                     <img :src="subject.image" :alt="subject.title">
                     <h3>{{ subject.title }}</h3>
                     <p>Location: {{ subject.location }}</p>
@@ -36,7 +35,7 @@
                         class="add-to-cart-btn">
                         <span class="fas fa-cart-plus"></span> Add to Cart
                     </button>
-                    <p v-if="isOutOfStock(subject)" style="color: red;">Out of Stock</p>
+                    <p v-if="subject.spaces === 0" style="color: red;">Out of Stock</p>
                 </div>
             </main>
 
