@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,11 +9,10 @@
     <link rel="stylesheet" href="APP.CSS">
 </head>
 <body>
-
 <div id="app">
     <!-- Header Section -->
     <header>
-        <h1>{{ sitename }}</h1>
+        <h1>ONLINE LEARNING HUB</h1>
         <button v-on:click="viewCart" :disabled="cart.length === 0">
             <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
         </button>
@@ -22,9 +21,8 @@
     <div class="container">
         <!-- Main Product Section -->
         <div class="product-area-wrapper" v-if="!showCartPage && !showCheckoutForm && !showSummary">
-            <!-- Main Product Area -->
             <main class="product-area">
-                <div v-for="subject in sortedAndFilteredSubjects" :key="subject._id" class="card">
+                <div v-for="subject in filteredSubjects" :key="subject._id" class="card">
                     <img :src="subject.image" :alt="subject.title">
                     <h3>{{ subject.title }}</h3>
                     <p>Location: {{ subject.location }}</p>
@@ -36,11 +34,10 @@
                         class="add-to-cart-btn">
                         <span class="fas fa-cart-plus"></span> Add to Cart
                     </button>
-                    <p v-if="isOutOfStock(subject)" style="color: red;">Out of Stock</p>
+                    <p v-if="subject.spaces === 0" style="color: red;">Out of Stock</p>
                 </div>
             </main>
 
-            <!-- Sidebar -->
             <aside class="sidebar">
                 <h3>Sort Lessons</h3>
                 <label for="sortBy">Sort By:</label>
@@ -62,21 +59,18 @@
             </aside>
         </div>
 
-      <!-- Cart Page -->
-      <div v-if="showCartPage" class="cart-area">
-        <h2>Your Cart</h2>
-        <div v-for="(subject, index) in cart" :key="index" class="cart-item">
-            <span>{{ subject.title }} - £{{ subject.price }}</span>
-            <button v-on:click="removeFromCart(subject, index)" class="remove-btn">
-                <span class="fas fa-trash"></span> Remove
-            </button>
+        <!-- Cart Page -->
+        <div v-if="showCartPage" class="cart-area">
+            <h2>Your Cart</h2>
+            <div v-for="(subject, index) in cart" :key="index" class="cart-item">
+                <span>{{ subject.title }} - £{{ subject.price }}</span>
+                <button v-on:click="removeFromCart(subject, index)" class="remove-btn">
+                    <span class="fas fa-trash"></span> Remove
+                </button>
+            </div>
+            <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Lessons</button>
+            <button v-on:click="goToCheckout" class="add-to-cart-btn" :disabled="cart.length === 0">Proceed to Checkout</button>
         </div>
-        <button v-on:click="toggleviewCart" class="add-to-cart-btn">Back to Lessons</button>
-        <button v-on:click="goToCheckout" class="add-to-cart-btn" :disabled="cart.length === 0">Proceed to Checkout</button>
-    </div>
-
-                
-           
 
         <!-- Checkout Form -->
         <div v-if="showCheckoutForm && !showSummary" class="checkout-container">
@@ -128,7 +122,6 @@
         </div>
     </div>
 </div>
-
 <script src="/APP.JS"></script>
 </body>
 </html>
