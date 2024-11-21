@@ -90,13 +90,7 @@ let app = new Vue({
                 });
         },
         // Second addToCart method (API call to update spaces)
-        completeCheckout() {
-            const orderDetails = {
-                ...this.checkoutDetails,
-                items: this.cart,
-                total: this.cart.reduce((total, item) => total + item.price, 0)
-            };
-
+        updateCartInBackend(subject) {
             if (subject.spaces > 0) {
                 fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
                     method: 'PUT',
@@ -113,6 +107,13 @@ let app = new Vue({
                     alert('Failed to add to cart.');
                 });
             }
+        },
+        completeCheckout() {
+            const orderDetails = {
+                ...this.checkoutDetails,
+                items: this.cart,
+                total: this.cart.reduce((total, item) => total + item.price, 0)
+            };
 
             fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
                 method: 'POST',
