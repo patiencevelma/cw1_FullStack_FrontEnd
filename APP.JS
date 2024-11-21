@@ -1,144 +1,111 @@
-Vue({
-    el: '#app',
-    data: {
-        sitename: 'Online Learning Hub',
-        searchTerm: '',
-        sortBy: 'title',
-        sortOrder: 'asc',
-        subjects: [],
-        cart: [],
-        checkoutDetails: {
-            firstName: '',
-            lastName: '',
-            address: '',
-            city: '',
-            state: '',
-            zip: '',
-            shipAsGift: false,
-            deliveryMethod: ''
-        },
-        showCartPage: false,
-        showCheckoutForm: false,
-        showSummary: false
-    },
-    computed: {
-        filteredSubjects() {
-            let filtered = this.subjects.filter(subject => {
-                return (
-                    subject.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                    subject.location.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                    subject.price.toString().includes(this.searchTerm) ||
-                    subject.spaces.toString().includes(this.searchTerm)
-                );
-            });
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const PropertiesReader = require("properties-reader");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
-            filtered.sort((a, b) => {
-                const key = this.sortBy;
-                if (this.sortOrder === 'asc') return a[key] > b[key] ? 1 : -1;
-                return a[key] < b[key] ? 1 : -1;
-            });
+const app = express();
 
-            return filtered;
-        }
-    },
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.set("json spaces", 3);
 
-    methods: {
-        addToCart(subject) {
-            // First addToCart method (local update)
-            if (subject.spaces > 0) {
-                subject.spaces--;
-                this.cart.push(subject);
-            }
-        },
-        removeFromCart(subject, index) {
-            subject.spaces++;
-            this.cart.splice(index, 1);
-        },
-        toggleviewCart() {
-            this.showCartPage = !this.showCartPage;
-        },
-        goToCheckout() {
-            this.showCheckoutForm = true;
-            this.showCartPage = false;
-        },
-        goBackToCart() {
-            this.showCheckoutForm = false;
-            this.showCartPage = true;
-        },
-        submitCheckoutForm() {
-            this.showSummary = true;
-            this.showCheckoutForm = false;
-        },
-        goBackToCheckout() {
-            this.showSummary = false;
-            this.showCheckoutForm = true;
-        },
-        completeCheckout() {
-            alert('Thank you for your order!');
-            this.cart = [];
-            this.showSummary = false;
-        },
-        fetchProducts() {
-            // Fetch products from the backend API
-            fetch('https://cw1-fullstack-backend.onrender.com/collections/subjects')
-                .then(response => response.json())
-                .then(data => {
-                    this.subjects = data;
-                })
-                .catch(error => {
-                    console.error('Error fetching products:', error);
-                });
-        },
-        // Second addToCart method (API call to update spaces)
-        updateCartInBackend(subject) {
-            if (subject.spaces > 0) {
-                fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ spaces: subject.spaces - 1 })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to update spaces');
-                    this.cart.push(subject);
-                    subject.spaces--;
-                })
-                .catch(error => {
-                    console.error('Error updating lesson spaces:', error);
-                    alert('Failed to add to cart.');
-                });
-            }
-        },
-        completeCheckout() {
-            const orderDetails = {
-                ...this.checkoutDetails,
-                items: this.cart,
-                total: this.cart.reduce((total, item) => total + item.price, 0)
-            };
+// Serve static files (HTML, CSS, images,JS) from the "public" directory
+app.use(express.static(path.join(__dirname)));  // If you have a public folder for static assets
 
-            fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderDetails)
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to save order');
-                return response.json();
-            })
-            .then(() => {
-                alert('Thank you for your order!');
-                this.cart = [];
-                this.showSummary = false;
-                this.fetchProducts();
-            })
-            .catch(error => {
-                console.error('Error completing order:', error);
-                alert('Failed to complete order.');
-            });
-        },
-        viewCart() { this.showCartPage = true; },
-        goBackToProducts() { this.showCartPage = false; }
-    },
-    mounted() {
-        this.fetchProducts();
+
+
+
+// Load properties from the file
+const propertiesPath = path.resolve(__dirname, "./dbconnection.properties");
+const properties = PropertiesReader(propertiesPath);
+
+// Extract database connection details from properties
+const dbPrefix = properties.get("db.prefix");
+const dbHost = properties.get("db.host");
+const dbName = properties.get("db.name");
+const dbUser = properties.get("db.user");
+const dbPassword = properties.get("db.password");
+const dbParams = properties.get("db.params");
+
+// MongoDB connection URL
+const uri = `${dbPrefix}${dbUser}:${dbPassword}${dbHost}${dbParams}`;
+const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+
+let db1; // Declare database variable
+
+// Connect to the database
+async function connectDB() {
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB");
+    db1 = client.db(dbName); // Use the database name from properties
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+  }
+}
+
+connectDB(); // Establish database connection
+
+// Middleware to attach collection to the request
+app.param("collectionName", (req, res, next, collectionName) => {
+  try {
+    req.collection = db1.collection(collectionName);
+    next();
+  } catch (err) {
+    res.status(500).json({ error: "Failed to access collection" });
+  }
+});
+
+// Routes
+
+// Get all documents from a collection
+app.get("https://cw1-fullstack-backend.onrender.com/collections/collections/:collectionName", async (req, res) => {
+  try {
+    const data = await req.collection.find({}).toArray();
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching documents:", err);
+    res.status(500).json({ error: "Failed to fetch documents" });
+  }
+});
+
+// Update a document (e.g., updating spaces)
+app.put("https://cw1-fullstack-backend.onrender.com/collections/collections/:collectionName/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await req.collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: req.body }
+    );
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: "Document not found" });
     }
+    res.json({ message: "Document updated" });
+  } catch (err) {
+    console.error("Error updating document:", err);
+    res.status(500).json({ error: "Failed to update document" });
+  }
+});
+
+// Add a new order
+app.post("https://cw1-fullstack-backend.onrender.com/collections/collections/:collectionName", async (req, res) => {
+  try {
+    const result = await req.collection.insertOne(req.body);
+    res.status(201).json({ id: result.insertedId });
+  } catch (err) {
+    console.error("Error saving data:", err);
+    res.status(500).json({ error: "Failed to save data" });
+  }
+});
+
+// Serve images
+const imagesPath = path.resolve(__dirname, "images");
+app.use("/images", express.static(imagesPath));
+
+// Start the server
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
