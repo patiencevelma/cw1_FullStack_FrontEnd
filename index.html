@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="APP.CSS">
 </head>
 <body>
-
-
 <div id="app">
     <!-- Header Section -->
     <header>
@@ -19,12 +17,10 @@
             <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
         </button>
     </header>
-    
 
     <div class="container">
         <!-- Main Product Section -->
         <div class="product-area-wrapper" v-if="!showCartPage && !showCheckoutForm && !showSummary">
-            <!-- Main Product Area -->
             <main class="product-area">
                 <div v-for="subject in filteredSubjects" :key="subject._id" class="card">
                     <img :src="subject.image" :alt="subject.title">
@@ -34,44 +30,24 @@
                     <p>Spaces: {{ subject.spaces }}</p>
                     <button v-on:click="addToCart(subject)" :disabled="subject.spaces <= 0" class="add-to-cart-btn">
                         <span class="fas fa-cart-plus"></span> Add to Cart
-                      </button>
-                      
+                    </button>
                     <p v-if="subject.spaces <= 0" style="color: red;">Out of Stock</p>
                 </div>
             </main>
-
-            <!-- Sidebar -->
-            <aside class="sidebar">
-                <h3>Sort Lessons</h3>
-                <label for="sortBy">Sort By:</label>
-                <select v-model="sortBy" id="sortBy">
-                    <option value="title">Subject</option>
-                    <option value="location">Location</option>
-                    <option value="price">Price</option>
-                    <option value="spaces">Spaces</option>
-                </select>
-
-                <label for="sortOrder">Order:</label>
-                <select v-model="sortOrder" id="sortOrder">
-                    <option value="asc">Ascending</option>
-                    <option value="desc">Descending</option>
-                </select>
-
-                <h3>Search</h3>
-                <input type="text" v-model="searchTerm" placeholder="Search for subjects...">
-            </aside>
         </div>
 
         <!-- Cart Page -->
         <div v-if="showCartPage" class="cart-area">
             <h2>Your Cart</h2>
-            <div v-for="(item, index) in cart" :key="index" class="cart-item">
-                <span>{{ item.title }} - £{{ item.price }}</span>
-                <button v-on:click="removeFromCart(item, index)" class="remove-btn">Remove</button>
+            <div v-for="(subject, index) in cart" :key="subject._id" class="card">
+                <img :src="subject.image" :alt="subject.title">
+                <h3>{{ subject.title }}</h3>
+                <p>Location: {{ subject.location }}</p>
+                <p>Price: £{{ subject.price }}</p>
+                <button v-on:click="removeFromCart(subject, index)" class="remove-btn">Remove</button>
             </div>
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
             <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
-
         </div>
 
         <!-- Checkout Form -->
@@ -113,12 +89,13 @@
             <p><strong>Zip:</strong> {{ checkoutDetails.zip }}</p>
             <p><strong>Gift Wrap:</strong> {{ checkoutDetails.shipAsGift ? "Yes" : "No" }}</p>
             <p><strong>Delivery Method:</strong> {{ checkoutDetails.deliveryMethod }}</p>
-            <p><strong>Items:</strong></p>
-            <ul>
-                <li v-for="item in cart" :key="item._id">
-                    {{ item.title }} - £{{ item.price }}
-                </li>
-            </ul>
+            <h3>Items in Your Order:</h3>
+            <div v-for="subject in cart" :key="subject._id" class="card">
+                <img :src="subject.image" :alt="subject.title">
+                <h3>{{ subject.title }}</h3>
+                <p>Location: {{ subject.location }}</p>
+                <p>Price: £{{ subject.price }}</p>
+            </div>
             <button v-on:click="completeCheckout" class="add-to-cart-btn">Complete Order</button>
             <button v-on:click="goBackToCheckout" class="add-to-cart-btn">Back to Checkout</button>
         </div>
@@ -127,4 +104,5 @@
 <script src="APP.JS"></script>
 </body>
 </html>
+
 
