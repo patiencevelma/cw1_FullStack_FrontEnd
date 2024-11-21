@@ -67,11 +67,7 @@
         <div v-if="showCartPage" class="cart-area">
             <h2>Your Cart</h2>
             <div v-for="(item, index) in cart" :key="index" class="cart-item">
-                <img :src="subject.image" :alt="subject.title">
-                    <h3>{{ subject.title }}</h3>
-                    <p>Location: {{ subject.location }}</p>
-                    <p>Price: £{{ subject.price }}</p>
-                    <p>Spaces: {{ subject.spaces }}</p>
+                <span>{{ item.title }} - £{{ item.price }}</span>
                 <button v-on:click="removeFromCart(item, index)" class="remove-btn">Remove</button>
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
             <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
