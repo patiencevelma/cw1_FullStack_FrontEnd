@@ -63,17 +63,21 @@
             </aside>
         </div>
 
-        <!-- Cart Page -->
-        <div v-if="showCartPage" class="cart-area">
-            <h2>Your Cart</h2>
-            <div v-for="(item, index) in cart" :key="index" class="cart-item">
-                <span>{{ item.title }} - £{{ item.price }}</span>
-                <button @click="removeFromCart(item, index)" class="remove-btn">Remove</button>
-            </div>
-            <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
-            <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
-
-        </div>
+        <!-- Display each product in the cart -->
+  <div v-for="(subject, index) in cart" :key="subject._id" class="cart-item">
+    <img :src="subject.image" :alt="subject.title" class="cart-item-image">
+    <h3>{{ subject.title }}</h3>
+    <p>Location: {{ subject.location }}</p>
+    <p>Price: £{{ subject.price }}</p>
+    <p>Spaces: {{ subject.spaces }}</p>
+    
+    <!-- Remove from cart button -->
+    <button v-on:click="removeFromCart(subject, index)" class="remove-btn">Remove</button>
+  </div>
+  
+  <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
+  <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
+</div>
 
         <!-- Checkout Form -->
         <div v-if="showCheckoutForm && !showSummary" class="checkout-container">
