@@ -1,6 +1,5 @@
-
 let app = new Vue({
-    el: 'app',
+    el: '#app',
     data: {
         sitename: 'Online Learning Hub',
         searchTerm: '',
@@ -42,44 +41,29 @@ let app = new Vue({
             return filtered;
         }
     },
+
     methods: {
-  
-
-     // Add a lesson to the cart
-     addToCart(subject) {
-        if (subject.spaces > 0) {
-            this.cart.push(subject); // Add to cart
-            subject.spaces--; // Decrease availability
-        }
-    },
-
-    // Remove a lesson from the cart
-    removeFromCart(subject, index) {
-        this.cart.splice(index, 1); // Remove from cart
-        subject.spaces++; // Restore availability
-    },
-
-    // Check if a subject is out of stock
-    isOutOfStock(subject) {
-        return subject.spaces === 0;
-    },
-
-    // Toggle between lesson page and cart page
-    toggleCartView() {
-        if (this.cart.length === 0 && this.showCart) {
-            alert('Your cart is empty!');
-        } else {
-            this.showCart = !this.showCart;
-        }
-    },
-        goBackToProducts() {
-            this.showCartPage = false;
+        addToCart(subject) {
+            // First addToCart method (local update)
+            if (subject.spaces > 0) {
+                subject.spaces--;
+                this.cart.push(subject);
+            }
+        },
+        removeFromCart(subject, index) {
+            subject.spaces++;
+            this.cart.splice(index, 1);
+        },
+        toggleviewCart() {
+            this.showCartPage = !this.showCartPage;
         },
         goToCheckout() {
             this.showCheckoutForm = true;
+            this.showCartPage = false;
         },
         goBackToCart() {
             this.showCheckoutForm = false;
+            this.showCartPage = true;
         },
         submitCheckoutForm() {
             this.showSummary = true;
@@ -104,60 +88,62 @@ let app = new Vue({
                 .catch(error => {
                     console.error('Error fetching products:', error);
                 });
-            
+        },
+        // Second addToCart method (API call to update spaces)
+        updateCartInBackend(subject) {
+            if (subject.spaces > 0) {
+                fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ spaces: subject.spaces - 1 })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to update spaces');
+                    this.cart.push(subject);
+                    subject.spaces--;
+                })
+                .catch(error => {
+                    console.error('Error updating lesson spaces:', error);
+                    alert('Failed to add to cart.');
+                });
+            }
+        },
+        completeCheckout() {
+            const orderDetails = {
+                ...this.checkoutDetails,
+                items: this.cart,
+                total: this.cart.reduce((total, item) => total + item.price, 0)
+            };
+    // Send the POST request to the backend
+      fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
     },
-    addToCart(subject) {
-        if (subject.spaces > 0) {
-            fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ spaces: subject.spaces - 1 })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to update spaces');
-                this.cart.push(subject);
-                subject.spaces--;
-            })
-            .catch(error => {
-                console.error('Error updating lesson spaces:', error);
-                alert('Failed to add to cart.');
-            });
-        }
+    body: JSON.stringify(orderDetails)
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to save order');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Order successfully saved with ID:', data.id);
+      alert('Thank you for your order!');
+      this.cart = [];
+      this.showSummary = false;
+      this.fetchProducts(); // Assuming this is a function to update the UI
+    })
+    .catch(error => {
+      console.error('Error completing order:', error);
+      alert('Failed to complete order.');
+    });
+        },
+        viewCart() { this.showCartPage = true; },
+        goBackToProducts() { this.showCartPage = false; }
     },
-    completeCheckout() {
-        const orderDetails = {
-            ...this.checkoutDetails,
-            items: this.cart,
-            total: this.cart.reduce((total, item) => total + item.price, 0)
-        };
-
-        fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderDetails)
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Failed to save order');
-            return response.json();
-        })
-        .then(() => {
-            alert('Thank you for your order!');
-            this.cart = [];
-            this.showSummary = false;
-            this.fetchProducts();
-        })
-        .catch(error => {
-            console.error('Error completing order:', error);
-            alert('Failed to complete order.');
-        });
-    },
-    viewCart() { this.showCartPage = true; },
-    goBackToProducts() { this.showCartPage = false; },
-    goToCheckout() { this.showCheckoutForm = true; },
-    goBackToCart() { this.showCheckoutForm = false; },
-    goBackToCheckout() { this.showSummary = false; this.showCheckoutForm = true; }
-},
-mounted() {
-    this.fetchProducts();
-}
+    mounted() {
+        this.fetchProducts();
+    }
 });
