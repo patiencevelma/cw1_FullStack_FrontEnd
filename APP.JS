@@ -1,4 +1,4 @@
-let app = new  Vue({
+new  Vue({
     el: '#app',
     data: {
         sitename: 'Online Learning Hub',
