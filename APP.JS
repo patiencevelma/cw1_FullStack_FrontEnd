@@ -114,10 +114,10 @@ let app = new Vue({
                 items: this.cart,
                 total: this.cart.reduce((total, item) => total + item.price, 0)
             };
-// Send the POST request to the backend
-fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
-    method: 'POST',
-    headers: {
+    // Send the POST request to the backend
+      fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
+      method: 'POST',
+      headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(orderDetails)
