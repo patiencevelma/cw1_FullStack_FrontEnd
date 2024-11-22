@@ -114,13 +114,18 @@ let app = new Vue({
                 items: this.cart,
                 total: this.cart.reduce((total, item) => total + item.price, 0)
             };
-// Send the POST request to the backend
-fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
+/// Send the POST request to the backend
+const sanitizedOrderDetails = {
+    ...orderDetails,
+    items: orderDetails.items.map(({ _id, ...item }) => item), // Remove _id from each item
+  };
+  
+  fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(orderDetails)
+    body: JSON.stringify(sanitizedOrderDetails), // Send the sanitized object
   })
     .then(response => {
       if (!response.ok) {
@@ -131,14 +136,15 @@ fetch('https://cw1-fullstack-backend.onrender.com/collections/orders', {
     .then(data => {
       console.log('Order successfully saved with ID:', data.id);
       alert('Thank you for your order!');
-      this.cart = [];
-      this.showSummary = false;
-      this.fetchProducts(); // Assuming this is a function to update the UI
+      this.cart = []; // Clear the cart
+      this.showSummary = false; // Hide the summary
+      this.fetchProducts(); // Refresh the product list
     })
     .catch(error => {
       console.error('Error completing order:', error);
       alert('Failed to complete order.');
     });
+  
         },
         viewCart() { this.showCartPage = true; },
         goBackToProducts() { this.showCartPage = false; }
