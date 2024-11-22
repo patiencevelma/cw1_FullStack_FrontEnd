@@ -21,25 +21,26 @@ let app = new Vue({
         showCheckoutForm: false,
         showSummary: false
     },
-    filteredSubjects() {
-        let filtered = this.subjects.filter(subject => {
-            return (
-                (subject.title?.toLowerCase().includes(this.searchTerm.toLowerCase()) || '') ||
-                (subject.location?.toLowerCase().includes(this.searchTerm.toLowerCase()) || '') ||
-                (subject.price?.toString().includes(this.searchTerm) || '') ||
-                (subject.spaces?.toString().includes(this.searchTerm) || '')
-            );
-        });
-    
-        filtered.sort((a, b) => {
-            const key = this.sortBy;
-            if (this.sortOrder === 'asc') return a[key] > b[key] ? 1 : -1;
-            return a[key] < b[key] ? 1 : -1;
-        });
-    
-        return filtered;
+    computed: {
+        filteredSubjects() {
+            let filtered = this.subjects.filter(subject => {
+                return (
+                    subject.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                    subject.location.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                    subject.price.toString().includes(this.searchTerm) ||
+                    subject.spaces.toString().includes(this.searchTerm)
+                );
+            });
+
+            filtered.sort((a, b) => {
+                const key = this.sortBy;
+                if (this.sortOrder === 'asc') return a[key] > b[key] ? 1 : -1;
+                return a[key] < b[key] ? 1 : -1;
+            });
+
+            return filtered;
+        }
     },
-    
     methods: {
   
 
