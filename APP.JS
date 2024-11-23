@@ -21,7 +21,6 @@
         showCheckoutForm: false,
         showSummary: false
     },
-    computed: {
         computed: {
             filteredSubjects() {
                 if (!Array.isArray(this.subjects)) return []; // Ensure `subjects` is an array
@@ -154,4 +153,4 @@
     mounted() {
         this.fetchProducts();
     }
-}});
+});
