@@ -79,39 +79,6 @@ let app = new Vue({
             this.showCheckoutForm = true;
         },
         completeCheckout() {
-            alert('Thank you for your order!');
-            this.cart = [];
-            this.showSummary = false;
-        },
-        fetchProducts() {
-            fetch('https://cw1-fullstack-backend.onrender.com/collections/subjects')
-                .then(response => response.json())
-                .then(data => {
-                    this.subjects = Array.isArray(data) ? data.filter(item => item && typeof item === 'object') : [];
-                })
-                .catch(error => {
-                    console.error('Error fetching products:', error);
-                });
-        },
-        updateCartInBackend(subject) {
-            if (subject.spaces > 0) {
-                fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ spaces: subject.spaces - 1 })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to update spaces');
-                    this.cart.push(subject);
-                    subject.spaces--;
-                })
-                .catch(error => {
-                    console.error('Error updating lesson spaces:', error);
-                    alert('Failed to add to cart.');
-                });
-            }
-        },
-        completeCheckout() {
             const orderDetails = {
                 ...this.checkoutDetails,
                 items: this.cart,
@@ -141,7 +108,35 @@ let app = new Vue({
             });
         },
         viewCart() { this.showCartPage = true; },
-        goBackToProducts() { this.showCartPage = false; }
+        goBackToProducts() { this.showCartPage = false; },
+        fetchProducts() {
+            fetch('https://cw1-fullstack-backend.onrender.com/collections/subjects')
+                .then(response => response.json())
+                .then(data => {
+                    this.subjects = Array.isArray(data) ? data.filter(item => item && typeof item === 'object') : [];
+                })
+                .catch(error => {
+                    console.error('Error fetching products:', error);
+                });
+        },
+        updateCartInBackend(subject) {
+            if (subject.spaces > 0) {
+                fetch(`https://cw1-fullstack-backend.onrender.com/collections/subjects/${subject._id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ spaces: subject.spaces - 1 })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to update spaces');
+                    this.cart.push(subject);
+                    subject.spaces--;
+                })
+                .catch(error => {
+                    console.error('Error updating lesson spaces:', error);
+                    alert('Failed to add to cart.');
+                });
+            }
+        }
     },
     mounted() {
         this.fetchProducts();
