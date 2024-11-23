@@ -22,25 +22,33 @@
         showSummary: false
     },
     computed: {
-        filteredSubjects() {
-            let filtered = this.subjects.filter(subject => {
-                return (
-                    (subject.title?.toLowerCase() || '').includes(this.searchTerm.toLowerCase()) ||
-                    (subject.location?.toLowerCase() || '').includes(this.searchTerm.toLowerCase()) ||
-                    (subject.price?.toString() || '').includes(this.searchTerm) ||
-                    (subject.spaces?.toString() || '').includes(this.searchTerm)
-                );
-            });
-    
-            filtered.sort((a, b) => {
-                const key = this.sortBy;
-                if (this.sortOrder === 'asc') return (a[key] || '') > (b[key] || '') ? 1 : -1;
-                return (a[key] || '') < (b[key] || '') ? 1 : -1;
-            });
-    
-            return filtered;
-        }
-    },
+        computed: {
+            filteredSubjects() {
+                if (!Array.isArray(this.subjects)) return []; // Ensure `subjects` is an array
+        
+                let filtered = this.subjects.filter(subject => {
+                    if (!subject) return false; // Skip undefined or null entries
+        
+                    return (
+                        (subject.title?.toLowerCase() || '').includes(this.searchTerm.toLowerCase()) ||
+                        (subject.location?.toLowerCase() || '').includes(this.searchTerm.toLowerCase()) ||
+                        (subject.price?.toString() || '').includes(this.searchTerm) ||
+                        (subject.spaces?.toString() || '').includes(this.searchTerm)
+                    );
+                });
+        
+                filtered.sort((a, b) => {
+                    const key = this.sortBy;
+                    const aKey = a[key] || '';
+                    const bKey = b[key] || '';
+        
+                    if (this.sortOrder === 'asc') return aKey > bKey ? 1 : -1;
+                    return aKey < bKey ? 1 : -1;
+                });
+        
+                return filtered;
+            }
+        },        
 
     methods: {
         addToCart(subject) {
@@ -79,11 +87,11 @@
             this.showSummary = false;
         },
         fetchProducts() {
-            // Fetch products from the backend API
             fetch('https://cw1-fullstack-backend.onrender.com/collections/subjects')
                 .then(response => response.json())
                 .then(data => {
-                    this.subjects = data;
+                    // Validate that data is an array of objects with the expected structure
+                    this.subjects = Array.isArray(data) ? data.filter(item => item && typeof item === 'object') : [];
                 })
                 .catch(error => {
                     console.error('Error fetching products:', error);
