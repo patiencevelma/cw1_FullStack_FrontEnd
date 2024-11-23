@@ -154,4 +154,4 @@
     mounted() {
         this.fetchProducts();
     }
-});
+}});
