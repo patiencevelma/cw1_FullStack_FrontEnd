@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta Information -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Page Title -->
     <title>Subject Listing App</title>
+    
+    <!-- External CSS and Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Vue.js Framework -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="APP.CSS">
 </head>
 <body>
 <div id="app">
     <!-- Header Section -->
     <header>
+        <!-- App Title -->
         <h1>{{ sitename }}</h1>
+        
+        <!-- View Cart Button -->
         <button v-on:click="viewCart" :disabled="cart.length === 0">
             <span class="fas fa-shopping-cart"></span> View Cart ({{ cart.length }} items)
         </button>
@@ -22,15 +34,23 @@
         <!-- Main Product Section -->
         <div class="product-area-wrapper" v-if="!showCartPage && !showCheckoutForm && !showSummary">
             <main class="product-area">
+                <!-- Render Each Subject as a Card -->
                 <div v-for="subject in filteredSubjects" :key="subject._id" class="card">
+                    <!-- Subject Image -->
                     <img :src="subject.image" :alt="subject.title">
+                    
+                    <!-- Subject Details -->
                     <h3>{{ subject.title }}</h3>
                     <p>Location: {{ subject.location }}</p>
                     <p>Price: £{{ subject.price }}</p>
                     <p>Spaces: {{ subject.spaces }}</p>
+                    
+                    <!-- Add to Cart Button -->
                     <button v-on:click="addToCart(subject)" :disabled="subject.spaces <= 0" class="add-to-cart-btn">
                         <span class="fas fa-cart-plus"></span> Add to Cart
                     </button>
+                    
+                    <!-- Out of Stock Message -->
                     <p v-if="subject.spaces <= 0" style="color: red;">Out of Stock</p>
                 </div>
             </main>
@@ -39,6 +59,7 @@
         <!-- Cart Page -->
         <div v-if="showCartPage" class="cart-area">
             <h2>Your Cart</h2>
+            <!-- Render Each Subject in Cart -->
             <div v-for="(subject, index) in cart" :key="subject._id" class="card">
                 <img :src="subject.image" :alt="subject.title">
                 <h3>{{ subject.title }}</h3>
@@ -46,34 +67,39 @@
                 <p>Price: £{{ subject.price }}</p>
                 <button v-on:click="removeFromCart(subject, index)" class="remove-btn">Remove</button>
             </div>
+            
+            <!-- Navigation Buttons -->
             <button v-on:click="goBackToProducts" class="add-to-cart-btn">Back to Products</button>
             <button v-on:click="goToCheckout" class="add-to-cart-btn">Proceed to Checkout</button>
         </div>
-     <!-- Sidebar -->
-    <aside class="sidebar">
-    <aside class="sidebar" v-if="!showCartPage && !showCheckoutForm && !showSummary"></aside>
-    <h3>Sort Lessons</h3>
-    <label for="sortBy">Sort By:</label>
-    <select v-model="sortBy" id="sortBy">
-        <option value="title">Subject</option>
-        <option value="location">Location</option>
-        <option value="price">Price</option>
-        <option value="spaces">Spaces</option>
-    </select>
+        
+        <!-- Sidebar Section -->
+        <aside class="sidebar" v-if="!showCartPage && !showCheckoutForm && !showSummary">
+            <h3>Sort Lessons</h3>
+            <!-- Sorting Options -->
+            <label for="sortBy">Sort By:</label>
+            <select v-model="sortBy" id="sortBy">
+                <option value="title">Subject</option>
+                <option value="location">Location</option>
+                <option value="price">Price</option>
+                <option value="spaces">Spaces</option>
+            </select>
+            
+            <label for="sortOrder">Order:</label>
+            <select v-model="sortOrder" id="sortOrder">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+            
+            <!-- Search Bar -->
+            <h3>Search</h3>
+            <input type="text" v-model="searchTerm" placeholder="Search for subjects...">
+        </aside>
 
-    <label for="sortOrder">Order:</label>
-    <select v-model="sortOrder" id="sortOrder">
-        <option value="asc">Ascending</option>
-        <option value="desc">Descending</option>
-    </select>
-
-    <h3>Search</h3>
-    <input type="text" v-model="searchTerm" placeholder="Search for subjects...">
-    </aside>
-  </div>
         <!-- Checkout Form -->
         <div v-if="showCheckoutForm && !showSummary" class="checkout-container">
             <h3>Checkout</h3>
+            <!-- Form for User Details -->
             <form @submit.prevent="submitCheckoutForm">
                 <label>First Name: <input type="text" v-model="checkoutDetails.firstName" required></label>
                 <label>Last Name: <input type="text" v-model="checkoutDetails.lastName" required></label>
@@ -89,11 +115,12 @@
                 </label>
                 <label>Zip: <input type="text" v-model="checkoutDetails.zip" required></label>
                 <label><input type="checkbox" v-model="checkoutDetails.shipAsGift"> Ship As Gift?</label>
-
+                
+                <!-- Delivery Method -->
                 <label>Delivery Method:</label>
                 <label><input type="radio" value="Home" v-model="checkoutDetails.deliveryMethod"> Home</label>
                 <label><input type="radio" value="Business" v-model="checkoutDetails.deliveryMethod"> Business</label>
-
+                
                 <button type="submit">Review Order</button>
             </form>
             <button v-on:click="goBackToCart" class="add-to-cart-btn">Back to Cart</button>
@@ -102,6 +129,7 @@
         <!-- Order Summary -->
         <div v-if="showSummary" class="checkout-container">
             <h3>Order Summary</h3>
+            <!-- Display Summary Details -->
             <p><strong>First Name:</strong> {{ checkoutDetails.firstName }}</p>
             <p><strong>Last Name:</strong> {{ checkoutDetails.lastName }}</p>
             <p><strong>Address:</strong> {{ checkoutDetails.address }}</p>
@@ -110,6 +138,8 @@
             <p><strong>Zip:</strong> {{ checkoutDetails.zip }}</p>
             <p><strong>Gift Wrap:</strong> {{ checkoutDetails.shipAsGift ? "Yes" : "No" }}</p>
             <p><strong>Delivery Method:</strong> {{ checkoutDetails.deliveryMethod }}</p>
+            
+            <!-- Render Ordered Items -->
             <h3>Items in Your Order:</h3>
             <div v-for="subject in cart" :key="subject._id" class="card">
                 <img :src="subject.image" :alt="subject.title">
@@ -122,8 +152,8 @@
         </div>
     </div>
 </div>
+
+<!-- Link to JavaScript File -->
 <script src="APP.JS"></script>
 </body>
 </html>
-
-
